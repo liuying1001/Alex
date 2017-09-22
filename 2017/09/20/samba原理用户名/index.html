@@ -6,18 +6,20 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://storage1024.com">
-  <title>Alex博客</title>
+  <title>samba原理介绍-usernames | Alex博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="不停的总结，不停的进步，分享的同时也是不断的积累，努力前行，路在脚下。">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Alex博客">
-<meta property="og:url" content="http://storage1024.com/index.html">
+  <meta name="description" content="SAMBA是在Linux服务器上部署共享文件服务，然后在Windows上进行访问。对于访问时用户的验证Linux不同于Windows。 ###1. Linux用户模式Linux一般分为以下几种用户模式：  0：关机  1：单用户模式  2：无网络支持的多用户模式  3：有网络支持的多用户模式  4：保留，未使用  5：有网络支持有X-Window支持的多用户模式  6：重新引导系统，即重启">
+<meta name="keywords" content="samba">
+<meta property="og:type" content="article">
+<meta property="og:title" content="samba原理介绍-usernames">
+<meta property="og:url" content="http://storage1024.com/2017/09/20/samba原理用户名/index.html">
 <meta property="og:site_name" content="Alex博客">
-<meta property="og:description" content="不停的总结，不停的进步，分享的同时也是不断的积累，努力前行，路在脚下。">
+<meta property="og:description" content="SAMBA是在Linux服务器上部署共享文件服务，然后在Windows上进行访问。对于访问时用户的验证Linux不同于Windows。 ###1. Linux用户模式Linux一般分为以下几种用户模式：  0：关机  1：单用户模式  2：无网络支持的多用户模式  3：有网络支持的多用户模式  4：保留，未使用  5：有网络支持有X-Window支持的多用户模式  6：重新引导系统，即重启">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-09-22T14:14:53.956Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Alex博客">
-<meta name="twitter:description" content="不停的总结，不停的进步，分享的同时也是不断的积累，努力前行，路在脚下。">
+<meta name="twitter:title" content="samba原理介绍-usernames">
+<meta name="twitter:description" content="SAMBA是在Linux服务器上部署共享文件服务，然后在Windows上进行访问。对于访问时用户的验证Linux不同于Windows。 ###1. Linux用户模式Linux一般分为以下几种用户模式：  0：关机  1：单用户模式  2：无网络支持的多用户模式  3：有网络支持的多用户模式  4：保留，未使用  5：有网络支持有X-Window支持的多用户模式  6：重新引导系统，即重启">
   
     <link rel="alternative" href="/atom.xml" title="Alex博客" type="application/atom+xml">
   
@@ -147,16 +149,14 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-    <article id="post-samba原理用户名" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+            <article id="post-samba原理用户名" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/09/20/samba原理用户名/">samba原理介绍-usernames</a>
+    <h1 class="article-title" itemprop="name">
+      samba原理介绍-usernames
     </h1>
   
 
@@ -179,9 +179,19 @@
 <li>4：保留，未使用 </li>
 <li>5：有网络支持有X-Window支持的多用户模式 </li>
 <li><p>6：重新引导系统，即重启 </p>
-        
-          <a class="article-more-a" href="/2017/09/20/samba原理用户名/#more">more >></a>
-        
+ <a id="more"></a>
+</li>
+</ul>
+<p>Linux 系统处于正常状态时，服务器主机开机（或重新启动）后，能够由系统引导器程序自动引导 Linux 系统启动到多用户模式，并提供正常的网络服务。特注：进入单用户模式，没有开启网络服务，不支持远程连接 </p>
+<p>Linux 系统中不同的运行级别（Run Level）代表了系统的不同运行状态，例如 Linux 服务器正常运行时处于运行级别3，是能够提供网络服务的多用户模式；而运行级别 1 只允许管理员通过服务器主机的单一控制台进行操作，即“单用户模式”。</p>
+<h3 id="2-Linux文件权限"><a href="#2-Linux文件权限" class="headerlink" title="2. Linux文件权限"></a>2. Linux文件权限</h3><p>Linux文件的元数据中保存了该文件的权限mod，创建该文件的UID，GID。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">[u1@localhost test]# stat file1 </div><div class="line">  File: ‘file1’</div><div class="line">  Size: 2         	Blocks: 8          IO Block: 4096   regular file</div><div class="line">Device: fd00h/64768d	Inode: 134382061   Links: 1</div><div class="line">Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)</div><div class="line">Access: 2017-09-19 01:38:17.517410401 -0700</div><div class="line">Modify: 2017-09-19 01:38:14.854274421 -0700</div><div class="line">Change: 2017-09-19 01:38:14.854274421 -0700</div><div class="line"> Birth: -</div><div class="line">You have new mail in /var/spool/mail/root</div><div class="line">[u1@localhost test]#</div></pre></td></tr></table></figure>
+<p>如上面文件file1的用户具有读写权限，用户组和其他用户具有读权限。同时也应该注意到uid/gid保存在文件的元数据中。如果切换其他用户，并进行写该文件，将报错。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">[root@localhost test]# su u1</div><div class="line">[u1@localhost test]$ ll</div><div class="line">total 4</div><div class="line">-rw-r--r-- 1 root root 2 Sep 19 01:38 file1</div><div class="line"></div><div class="line">[u1@localhost test]$ echo &quot;1&quot; &gt; file1</div><div class="line">bash: file1: Permission denied</div><div class="line">[u1@localhost test]$</div></pre></td></tr></table></figure>
+<p>上述用户u1就是Linux多用户模式中，一个用户。因此如果从网络（windows客户端）访问Linux，那么也需要提供用户名。<br>但是我们也应该注意到，在Linux本地访问时，已经登录到u1用户状态，u1发起的读写操作将把u1的UID/GID作为请求的一部分与元数据中的要访问文件的UID/GID做比较，做权限鉴定。那么网络来的请求该如何做用户的权限鉴定呢？</p>
+<h3 id="3-SAMBA用户鉴权"><a href="#3-SAMBA用户鉴权" class="headerlink" title="3.SAMBA用户鉴权"></a>3.SAMBA用户鉴权</h3><p>请求从windows客户端来，Linux服务器上的smbd进程接收请求。由于不同请求中可能包含了不同的用户名，权限，因此smbd需要提供一个转换功能。即将windows 访问请求中的用户转换为uid并保存下来。如windows用户admin1在smaba共享目录中创建了一个文件，那么该文件的元数据中应该保存admin1在smbd中转换出来的uid/gid。</p>
+<p>不过进行用户转换功能的组件不是smbb，而是其他的组件，后续将进行逐步说明。</p>
+
       
 
       
@@ -203,16 +213,75 @@
       
 
       
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/09/20/samba原理用户名/">展开全文 >></a>
-        </p>
-      
 
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://storage1024.com/2017/09/20/samba原理用户名/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
       
       <div class="clearfix"></div>
     </div>
   </div>
 </article>
+
+  
+<nav id="article-nav">
+  
+  
+    <a href="/2017/09/10/CTDB介绍与安装及基本架构分析/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">CTDB介绍与安装及基本架构分析</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
 
 <aside class="wrap-side-operation">
     <div class="mod-side-operation">
@@ -232,169 +301,12 @@
 
 
 
-
   
-    <article id="post-CTDB介绍与安装及基本架构分析" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/09/10/CTDB介绍与安装及基本架构分析/">CTDB介绍与安装及基本架构分析</a>
-    </h1>
   
 
-        
-        <a href="/2017/09/10/CTDB介绍与安装及基本架构分析/" class="archive-article-date">
-  	<time datetime="2017-09-10T15:28:38.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-09-10</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="1-CTDB概述"><a href="#1-CTDB概述" class="headerlink" title="1. CTDB概述"></a>1. CTDB概述</h2><p>官网上的说明如下：<br>CTDB是一个集群TDB数据库，可以被Samba或者其他的应用使用来存储数据。如果一个应用是使用TDB来暂时存放数据，那么这个应用可以很轻松的使用CTDB扩展为集群模式。CTDB提供与TDB相同的函数接口，并且是构建在多台物理机器上的集群。   </p>
-<p>特性：</p>
-<ul>
-<li>CTDB提供一个横跨多个节点的并且数据一致、锁一致的TDB数据库；</li>
-<li>CTDB非常快速；</li>
-<li>对于节点故障，CTDB将自动恢复和修复其所管理的所有TDB数据库；</li>
-<li>CTDB是Samba3/4的一个核心组件；</li>
-<li>CTDB提供高可用特性，例如节点监控、节点切换、IP切换；</li>
-<li>CTDB为其多个节点上的应用提供可靠的传输通道；</li>
-<li>CTDB提供可热拔插的后端传输通道，目前实现了TCP和IB；</li>
-<li><p>CTDB可以提供为应用指定特定的管理脚本，使得应用能够实现高可用。   </p>
-        
-          <a class="article-more-a" href="/2017/09/10/CTDB介绍与安装及基本架构分析/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">CTDB</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/09/10/CTDB介绍与安装及基本架构分析/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-开篇" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/08/24/开篇/">开篇</a>
-    </h1>
   
 
-        
-        <a href="/2017/08/24/开篇/" class="archive-article-date">
-  	<time datetime="2017-08-24T13:28:38.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-24</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>本博客采用hexo + github pages完成搭建的，我之前有在csdn写bolg，那些博客就不迁到此处了。希望每一周能完成一篇干货总结。<br>本人从事存储工作，因此域名为storage1024。文章也将以存储相关的技术为主。 </p>
-<p>2017-8-24 alex</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">bolg</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/08/24/开篇/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
 
 
@@ -417,8 +329,8 @@
     <script>
 	var yiliaConfig = {
 		mathjax: false,
-		isHome: true,
-		isPost: false,
+		isHome: false,
+		isPost: true,
 		isArchive: false,
 		isTag: false,
 		isCategory: false,
