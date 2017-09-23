@@ -16,7 +16,7 @@
 <meta property="og:site_name" content="Alex博客">
 <meta property="og:description" content="关于pthread_cond_wait的用法，为加深记忆，记录如下。 线程A与线程B都需访问一个共享的临界区，如变量x； pthread_A12345mutex_lock if x &amp;gt; 1pthread_cond_wait(); //进入等待状态，不消耗cpu并在进入等待状态时unlock了mutex锁；                     //pthread_B执行pthread_co">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-09-23T09:45:24.960Z">
+<meta property="og:updated_time" content="2017-09-23T09:48:13.603Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Linux pthread_cond_wait">
 <meta name="twitter:description" content="关于pthread_cond_wait的用法，为加深记忆，记录如下。 线程A与线程B都需访问一个共享的临界区，如变量x； pthread_A12345mutex_lock if x &amp;gt; 1pthread_cond_wait(); //进入等待状态，不消耗cpu并在进入等待状态时unlock了mutex锁；                     //pthread_B执行pthread_co">
@@ -174,7 +174,7 @@
 <h4 id="pthread-A"><a href="#pthread-A" class="headerlink" title="pthread_A"></a>pthread_A</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">mutex_lock </div><div class="line"><span class="keyword">if</span> x &gt; <span class="number">1</span></div><div class="line">pthread_cond_wait(); <span class="comment">//进入等待状态，不消耗cpu并在进入等待状态时unlock了mutex锁；</span></div><div class="line">                     <span class="comment">//pthread_B执行pthread_cond_signal时，唤醒线程A并再次加mutex 锁</span></div><div class="line">mutex_unlock</div></pre></td></tr></table></figure>
 <p>线程A需要在x变量小于1时去做相应的处理，所以判断x大于1那么就等待x变量的值发生变化，即由线程B改变x变量的值并唤醒线程A。</p>
    <a id="more"></a>
-<h4 id="pthread-B"><a href="#pthread-B" class="headerlink" title="pthread_B"></a>pthread_B</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mutex_lock</div><div class="line">x = <span class="number">0</span></div><div class="line">pthread_cond_signal(); <span class="comment">//发送信号唤醒一个等等的线程，此处就是线程A</span></div><div class="line">mutex_unlock</div></pre></td></tr></table></figure>
+<h4 id="pthread-B"><a href="#pthread-B" class="headerlink" title="pthread_B"></a>pthread_B</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mutex_lock</div><div class="line">x = <span class="number">0</span></div><div class="line">pthread_cond_signal(); <span class="comment">//发送信号唤醒一个等等的线程，此处就是线程A。</span></div><div class="line">mutex_unlock</div></pre></td></tr></table></figure>
 <ul>
 <li>pthread_cond_wait()  用于阻塞当前线程，等待别的线程使用 pthread_cond_signal() 或pthread_cond_broadcast来唤醒它 。  pthread_cond_wait()   必须与pthread_mutex 配套使用。</li>
 <li>pthread_cond_wait() 函数一进入wait状态就会自动release mutex。当其他线程通过 pthread_cond_signal() 或pthread_cond_broadcast ，把该线程唤醒，使 pthread_cond_wait()通过（返回）时，该线程又自动获得该mutex 。</li>
@@ -383,11 +383,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">CTDB</a>
+                <a href="javascript:void(0)" class="js-tag color4">c++</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">c++</a>
+                <a href="javascript:void(0)" class="js-tag color5">CTDB</a>
               </li>
              
               <li class="article-tag-list-item">
