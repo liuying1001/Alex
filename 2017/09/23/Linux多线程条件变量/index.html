@@ -8,18 +8,18 @@
   <link rel="dns-prefetch" href="http://storage1024.com">
   <title>Linux pthread_cond_wait | Alex博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="关于pthread_cond_wait的用法，为加深记忆，记录如下。 线程A与线程B都需访问一个共享的临界区，如变量x； pthread_A12345mutex_lock if x &amp;gt; 1pthread_cond_wait(); //进入等待状态，不消耗cpu并在进入等待状态时unlock了mutex锁；                                   //pthread">
+  <meta name="description" content="关于pthread_cond_wait的用法，为加深记忆，记录如下。 线程A与线程B都需访问一个共享的临界区，如变量x； pthread_A12345mutex_lock if x &amp;gt; 1pthread_cond_wait(); //进入等待状态，不消耗cpu并在进入等待状态时unlock了mutex锁；                     //pthread_B执行pthread_co">
 <meta name="keywords" content="Linux">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux pthread_cond_wait">
 <meta property="og:url" content="http://storage1024.com/2017/09/23/Linux多线程条件变量/index.html">
 <meta property="og:site_name" content="Alex博客">
-<meta property="og:description" content="关于pthread_cond_wait的用法，为加深记忆，记录如下。 线程A与线程B都需访问一个共享的临界区，如变量x； pthread_A12345mutex_lock if x &amp;gt; 1pthread_cond_wait(); //进入等待状态，不消耗cpu并在进入等待状态时unlock了mutex锁；                                   //pthread">
+<meta property="og:description" content="关于pthread_cond_wait的用法，为加深记忆，记录如下。 线程A与线程B都需访问一个共享的临界区，如变量x； pthread_A12345mutex_lock if x &amp;gt; 1pthread_cond_wait(); //进入等待状态，不消耗cpu并在进入等待状态时unlock了mutex锁；                     //pthread_B执行pthread_co">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-09-23T09:41:46.121Z">
+<meta property="og:updated_time" content="2017-09-23T09:45:24.960Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Linux pthread_cond_wait">
-<meta name="twitter:description" content="关于pthread_cond_wait的用法，为加深记忆，记录如下。 线程A与线程B都需访问一个共享的临界区，如变量x； pthread_A12345mutex_lock if x &amp;gt; 1pthread_cond_wait(); //进入等待状态，不消耗cpu并在进入等待状态时unlock了mutex锁；                                   //pthread">
+<meta name="twitter:description" content="关于pthread_cond_wait的用法，为加深记忆，记录如下。 线程A与线程B都需访问一个共享的临界区，如变量x； pthread_A12345mutex_lock if x &amp;gt; 1pthread_cond_wait(); //进入等待状态，不消耗cpu并在进入等待状态时unlock了mutex锁；                     //pthread_B执行pthread_co">
   
     <link rel="alternative" href="/atom.xml" title="Alex博客" type="application/atom+xml">
   
@@ -171,7 +171,7 @@
       
         <p>关于pthread_cond_wait的用法，为加深记忆，记录如下。</p>
 <p>线程A与线程B都需访问一个共享的临界区，如变量x；</p>
-<h4 id="pthread-A"><a href="#pthread-A" class="headerlink" title="pthread_A"></a>pthread_A</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">mutex_lock </div><div class="line"><span class="keyword">if</span> x &gt; <span class="number">1</span></div><div class="line">pthread_cond_wait(); <span class="comment">//进入等待状态，不消耗cpu并在进入等待状态时unlock了mutex锁；</span></div><div class="line">                                   <span class="comment">//pthread_B执行pthread_cond_signal时，唤醒线程A并再次加mutex 锁</span></div><div class="line">mutex_unlock</div></pre></td></tr></table></figure>
+<h4 id="pthread-A"><a href="#pthread-A" class="headerlink" title="pthread_A"></a>pthread_A</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">mutex_lock </div><div class="line"><span class="keyword">if</span> x &gt; <span class="number">1</span></div><div class="line">pthread_cond_wait(); <span class="comment">//进入等待状态，不消耗cpu并在进入等待状态时unlock了mutex锁；</span></div><div class="line">                     <span class="comment">//pthread_B执行pthread_cond_signal时，唤醒线程A并再次加mutex 锁</span></div><div class="line">mutex_unlock</div></pre></td></tr></table></figure>
 <p>线程A需要在x变量小于1时去做相应的处理，所以判断x大于1那么就等待x变量的值发生变化，即由线程B改变x变量的值并唤醒线程A。</p>
    <a id="more"></a>
 <h4 id="pthread-B"><a href="#pthread-B" class="headerlink" title="pthread_B"></a>pthread_B</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mutex_lock</div><div class="line">x = <span class="number">0</span></div><div class="line">pthread_cond_signal(); <span class="comment">//发送信号唤醒一个等等的线程，此处就是线程A</span></div><div class="line">mutex_unlock</div></pre></td></tr></table></figure>
@@ -383,7 +383,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+                <a href="javascript:void(0)" class="js-tag color5">CTDB</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -391,11 +391,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">samba</a>
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">CTDB</a>
+                <a href="javascript:void(0)" class="js-tag color1">samba</a>
               </li>
              
               <li class="article-tag-list-item">
